@@ -14,6 +14,7 @@ const MeCab = new require('mecab-async')
 const mecab = new MeCab()
 const cron = require('node-cron')
 
+let M
 
 //main
 const main = async()=>{
@@ -29,7 +30,7 @@ const main = async()=>{
         timeout_ms: 60 * 1000,
         api_url: `${baseUrl}/api/v1/`,
     }
-    const M = new Mastodon(info)
+    M = new Mastodon(info)
     
     
     //購読を開始
