@@ -19,11 +19,11 @@ const question = (query) => new Promise((resolve,reject)=>{
     })
 })
 
-const baseUrl = 'https://mstdn.seikin.club'
+const baseUrl = 'https://mstdn.tamag.org'
 
 !(async()=>{
     //認証idを取得
-    const res = await Mastodon.createOAuthApp(baseUrl + '/api/v1/apps', 'testapp', 'read write follow')
+    const res = await Mastodon.createOAuthApp(baseUrl + '/api/v1/apps', 'おうち', 'read write follow')
                                 .catch((err)=>console.err(err))
 
     //認証URLを取得して認証コードをユーザー入力してもらう

@@ -2,7 +2,7 @@
 
 const DATABASENAME = "data.sqlite"
 const inPutFileName = "./authedId.json" //読み込みファイルの名前
-const baseUrl = 'https://mstdn.seikin.club'
+const baseUrl = 'https://mstdn.tamag.org'
 
 
 const _ = require("lodash")
@@ -37,7 +37,8 @@ const main = async()=>{
     listener.on('message', handleToot)
     listener.on('error', err => console.error(err))
 
-    cron.schedule('* * * * * *', toot)
+    cron.schedule('*/30 * * * *', toot)
+    
 }
 
 const handleToot = async(msg)=>{
@@ -78,8 +79,10 @@ const toot = async function _me(){
         word = content.word2
     }
     if(!result){_me()}else{
-        console.dir(result)
-        console.log("==========================")    
+        M.post('statuses', {status:result}, function (err, data, res) {
+            if (!err)
+                console.log(res)
+        })
     }
 
 }
