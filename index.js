@@ -54,39 +54,53 @@ const handleToot = async(msg)=>{
     .catch((err)=>console.error(err))
 
     console.log(words)
-    let isHeadNode = true
     let tmpWord = ""
-    for(let word of words){
+    for(let nodeNum=0; nodeNum<words.length; nodeNum++){
         await insertWord("insert into node values(?, ?, ?, ?)"
-            ,[isHeadNode, tmpWord, word, msg.data.id], )
+            ,[nodeNum, tmpWord, words[nodeNUm], msg.data.id], )
             .catch((err)=>console.error(err))
-        tmpWord = word
-        isHeadNode = false
+        tmpWord = words[nodeNum]
+        nodeNum = false
     }
 }
 
-const toot = async function _me(){
-    const head = await getWord('select * from node where isHeadNode=1 order by random() limit 1')
+const toot = async function(){
+
+    const result = await createToot()
+    console.log(result)
+
+    /*
+    M.post('statuses', {status:result}, function (err, data, res) {
+        if (!err)
+        console.log(res)
+    })
+    */
+    
+
+}
+
+const createToot = async function(){
+
+    const head = await getWord('select * from node where nodeNum=0 order by random() limit 1')
     .catch(err=>console.error(err))
 
     let result = ""
     let content = " "
     let word = head.word2
+    let nodeNUm = 0
     while(result.length<140){
-        content = await getWord(`select * from node where isHeadNode=0 and word1="${word}" order by random() limit 1`)
+        content = await getWord(`select * from node where nodeNum=${nodeNUm} and word1="${word}" order by random() limit 1`)
         .catch(err=>console.error(err))
         if(!content){break}
         result += content.word1
         word = content.word2
-    }
-    if(!result){_me()}else{
-        M.post('statuses', {status:result}, function (err, data, res) {
-            if (!err)
-                console.log(res)
-        })
+        nodeNUm = content.nodeNUm
     }
 
+    return result
 }
+
+
 
 //windowsはこれないとうごかないっぽい
 //コマンドが通るようにしている

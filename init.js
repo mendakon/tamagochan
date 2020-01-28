@@ -9,7 +9,7 @@ const serialize = () => new Promise((resolve)=>{
 
 !(async ()=>{
     await serialize()
-    db.run('CREATE TABLE IF NOT EXISTS node(isHeadNode boolean, word1 text, word2 text, tootId int, unique(word1, word2, tootId))');
+    db.run('CREATE TABLE IF NOT EXISTS node(nodeNum int, word1 text, word2 text, tootId int, unique(word1, word2, tootId))');
     db.close();
 })()
 
