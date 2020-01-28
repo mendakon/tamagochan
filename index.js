@@ -5,7 +5,6 @@ const inPutFileName = "./authedId.json" //読み込みファイルの名前
 const baseUrl = 'https://mstdn.tamag.org'
 
 
-const _ = require("lodash")
 const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database(DATABASENAME)
 const Mastodon = require("mastodon-api")

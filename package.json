@@ -12,10 +12,10 @@
   "author": "KuchiBashi",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.15",
     "mastodon-api": "^1.3.0",
     "mecab-async": "^0.1.2",
     "node-cron": "^2.0.3",
+    "npm-check-updates": "^4.0.1",
     "readline": "^1.3.0",
     "sqlite3": "^4.1.1"
   },
