@@ -14,7 +14,12 @@ const MeCab = new require('mecab-async')
 const mecab = new MeCab()
 const cron = require('node-cron')
 
-let M
+
+    access_token:id_data.accessToken,
+        timeout_ms: 60 * 1000,
+        api_url: `${baseUrl}/api/v1/`,
+    }
+    const M = new Mastodon(info)
 
 //main
 const main = async()=>{
@@ -24,14 +29,7 @@ const main = async()=>{
 
     const id_data = JSON.parse(input)
 
-    
-    const info = {
-        access_token:id_data.accessToken,
-        timeout_ms: 60 * 1000,
-        api_url: `${baseUrl}/api/v1/`,
-    }
-    M = new Mastodon(info)
-    
+        
     
     //購読を開始
     const listener = M.stream('streaming/public/local')
@@ -54,56 +52,40 @@ const handleToot = async(msg)=>{
     .catch((err)=>console.error(err))
 
     console.log(words)
+    let isHeadNode = true
     let tmpWord = ""
-    for(let nodeNum=0; nodeNum<words.length; nodeNum++){
+    for(let word of words){
         await insertWord("insert into node values(?, ?, ?, ?)"
-            ,[nodeNum, tmpWord, words[nodeNum], msg.data.id], )
+            ,[isHeadNode, tmpWord, word, msg.data.id], )
             .catch((err)=>console.error(err))
-        tmpWord = words[nodeNum]
+        tmpWord = word
+        isHeadNode = false
     }
 }
 
-const toot = async function(){
-
-    let result
-    do{
-	result = await createToot()
-    }while(!result) 
-
-    console.log(result)
-
-    
-    M.post('statuses', {status:result}, function (err, data, res) {
-        if (!err)
-        console.log(res)
-    })
-    
-    
-
-}
-
-const createToot = async function(){
-
-    const head = await getWord('select * from node where nodeNum=0 order by random() limit 1')
+const toot = async function _me(){
+    const head = await getWord('select * from node where isHeadNode=1 order by random() limit 1')
     .catch(err=>console.error(err))
-    if(!head){return "エラー：トゥートぅーがないよ！"}
+
     let result = ""
     let content = " "
     let word = head.word2
-    let nodeNum = 0
     while(result.length<140){
-	result += word
-        content = await getWord(`select * from node where nodeNum>=${nodeNum} and word1="${word}" order by random() limit 1`)
+        content = await getWord(`select * from node where isHeadNode=0 and word1="${word}" order by random() limit 1`)
         .catch(err=>console.error(err))
         if(!content){break}
+        result += content.word1
         word = content.word2
-        nodeNum = content.nodeNum
+    }
+    if(!result){_me()}else{
+        M.post('statuses', {status:result}, function (err, data, res) {
+            if (!err)
+                console.log(res)
+        })
+	console.log(result)
     }
 
-    return result
 }
-
-
 
 //windowsはこれないとうごかないっぽい
 //コマンドが通るようにしている
