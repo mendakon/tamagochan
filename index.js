@@ -55,8 +55,9 @@ const handleToot = async(msg)=>{
     console.log(words)
     let tmpWord = ""
     for(let nodeNum=0; nodeNum<words.length; nodeNum++){
-        await insertWord("insert into node values(?, ?, ?, ?)"
-            ,[nodeNum, tmpWord, words[nodeNum], msg.data.id], )
+        const isEndNode = nodeNum>=words.length
+        await insertWord("insert into node values(?, ?, ?, ?, ?)"
+            ,[nodeNum, tmpWord, words[nodeNum], msg.data.id, isEndNode], )
             .catch((err)=>console.error(err))
         tmpWord = words[nodeNum]
     }
@@ -86,17 +87,30 @@ const createToot = async function(){
     const head = await getWord('select * from node where nodeNum=0 order by random() limit 1')
     .catch(err=>console.error(err))
     if(!head){return "エラー：トゥートぅーがないよ！"}
+
     let result = ""
     let content = " "
     let word = head.word2
     let nodeNum = 0
-    while(result.length<140){
-	result += word
-        content = await getWord(`select * from node where nodeNum>=${nodeNum} and word1="${word}" order by random() limit 1`)
+
+
+    while(true){
+        const sql = `select * from node where nodeNum>=${nodeNum} and word1="${word}" order by random() limit 1;`
+        content = await getWord(sql)
         .catch(err=>console.error(err))
-        if(!content){break}
+        if(!content){return "エラー：文章の生成に失敗したよ"}
+
+        //次回はwordでサーチする
         word = content.word2
+        //word1を追加する
+        result += content.word1
+        //次は自身より大きいnodeNumで検索する
         nodeNum = content.nodeNum
+        //終端のnodeであればword2を追加して終了
+        if(content.isEndNode){
+            result += content.word2
+            break
+        }
     }
 
     return result
