@@ -20,7 +20,7 @@ const get = (sql) => new Promise((resolve, reject)=>{
 !async function(){
     //await runDB("alter table node add column isEndNode bool;")
 
-    const toots = await get("select count(*) as count, tootId-100000000000000000 as tootId from node group by tootId;")
+    const toots = await get("select Max(nodeNum) as count, tootId-100000000000000000 as tootId from node group by tootId;")
     //ケタが多すぎて落ちるので桁併せて扱う
     await runDB("update node set isEndNode=false;")
 
@@ -28,7 +28,7 @@ const get = (sql) => new Promise((resolve, reject)=>{
 
     for(let toot of toots){
         const tootId = toot.tootId
-        const count = toot.count - 1
+        const count = toot.count
         const sql = `update node set isEndNode=true where tootId=${tootId}+100000000000000000 and nodeNum=${count}`
         await runDB(sql)
         .catch((e)=>console.error(e))
